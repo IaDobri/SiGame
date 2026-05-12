@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Вход | Регистрация</title>
+  <link rel="stylesheet" href="style/logreg.css" />
+</head>
+<body>
+  <!-- Хедер -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-section">
+        <img src="img/нпкашка.png" alt="logo" class="header-logo" />
+        <span class="header-title">Карьера: путь к диплому</span>
+      </div>
+      <nav class="header-nav">
+        <a href="#" class="nav-link">О проекте</a>
+        <a href="#" class="nav-link">Помощь</a>
+        <a href="#" class="nav-link">Контакты</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Основной контент -->
+  <main class="main-content">
+    <div class="center-panel">
+      <div class="auth-box">
+        <div class="mascot">
+          <img src="img/poli 1.png" alt="mascot" />
+        </div>
+        
+        <div class="btn-group">
+          <button class="tab-btn active" id="login-tab" type="button">Вход</button>
+          <button class="tab-btn" id="register-tab" type="button">Регистрация</button>
+        </div>
+        
+        <div class="form-container">
+          <!-- Форма входа -->
+          <form class="form active" id="login-form">
+            <label class="input-label">Почта
+              <input type="email" placeholder="Введите вашу почту:" required />
+            </label>
+            <label class="input-label">Пароль
+              <input type="password" placeholder="Пароль:" required />
+            </label>
+            
+            <div class="checkbox-row">
+              <input type="checkbox" checked id="login-agree" />
+              <label for="login-agree" class="checkbox-label">Согласен с условиями регистрации</label>
+            </div>
+            <button type="submit" class="submit-btn">Войти</button>
+          </form>
+          
+          <!-- Форма регистрации -->
+          <form class="form" id="register-form">
+            <label class="input-label">Почта
+              <input type="email" placeholder="Введите вашу почту" required />
+            </label>
+            <label class="input-label">Пароль
+              <input type="password" placeholder="Пароль" required />
+            </label>
+            <label class="input-label">Повторите пароль
+              <input type="password" placeholder="Пароль" required />
+            </label>
+            
+            <div class="checkbox-row">
+              <input type="checkbox" checked id="register-agree" />
+              <label for="register-agree" class="checkbox-label">Согласен с условиями регистрации</label>
+            </div>
+            <button type="submit" class="submit-btn">Зарегистрироваться</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Футер -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h3 class="footer-title">Карьера: путь к диплому</h3>
+        <p class="footer-description">
+          Образовательная платформа для студентов и выпускников. 
+          Помогаем построить успешную карьеру с самого начала.
+        </p>
+      </div>
+      
+      <div class="footer-section">
+        <h4 class="footer-subtitle">Навигация</h4>
+        <ul class="footer-links">
+          <li><a href="#" class="footer-link">Главная</a></li>
+          <li><a href="#" class="footer-link">Курсы</a></li>
+          <li><a href="#" class="footer-link">Карьера</a></li>
+          <li><a href="#" class="footer-link">Блог</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4 class="footer-subtitle">Помощь</h4>
+        <ul class="footer-links">
+          <li><a href="#" class="footer-link">Поддержка</a></li>
+          <li><a href="#" class="footer-link">FAQ</a></li>
+          <li><a href="#" class="footer-link">Контакты</a></li>
+          <li><a href="#" class="footer-link">Политика конфиденциальности</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4 class="footer-subtitle">Контакты</h4>
+        <div class="contact-info">
+          <div class="contact-item">
+            <span class="contact-icon">📧</span>
+            <span>support@career-diploma.ru</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-icon">📞</span>
+            <span>+7 (800) 123-45-67</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <div class="footer-bottom-container">
+        <p class="copyright">&copy; 2024 Карьера: путь к диплому. Все права защищены.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="logreg.js"></script>
+</body>
+</html>

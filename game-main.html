@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игровое поле</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #d8edff 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Кнопка перехода на карту (для вашего существующего сайта) */
+        
+
+        
+
+        /* Контейнер игры */
+        .game-container {
+            background: #bfe3ff;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+        }
+
+        .game-board {
+            position: relative;
+            width: 100%;
+            height: 700px;
+            background: #bfe3ff;
+            border-radius: 15px;
+            overflow: hidden;
+            background-image: url('/diplom/img/fon.png'); /* Добавьте эту строку */
+            background-size: cover; /* Или contain, или конкретные размеры */
+            background-position: center; /* Центрирование */
+            background-repeat: no-repeat;
+        }
+
+        /* SVG дорожки */
+        .paths-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .path {
+            fill: none;
+            stroke: rgb(255, 255, 255);
+            stroke-width: 21;
+            stroke-linecap: round;
+            opacity: 0.9;
+        }
+
+        .path-center {
+            fill: none;
+            stroke: #9fd4ff;
+            stroke-width: 25;
+            stroke-linecap: round;
+            opacity: 0.6;
+        }
+
+        /* Кнопки на поле */
+        .game-node {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+            border: 4px solid white;
+        }
+
+        .game-node:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            z-index: 20;
+        }
+
+        .game-node.blue {
+            background: linear-gradient(135deg, #667eea 0%, #80acff 100%);
+        }
+
+        .game-node.yellow {
+            background: linear-gradient(135deg, #d35800 0%, #ffd094 100%);
+        }
+
+        .game-node.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #b8860b;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+        }
+
+        /* Трофеи */
+        .trophy {
+            position: absolute;
+            font-size: 40px;
+            z-index: 5;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+        }
+
+        /* Модальное окно - НОВЫЙ СТИЛЬ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: linear-gradient(180deg, #e8f4ff 0%, #bfe3ff 100%);
+            padding: 0;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalAppear 0.3s ease;
+            overflow: hidden;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .modal-header-title {
+            color: #1e3c72;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .modal-header-branch {
+            color: #2a5298;
+            font-size: 16px;
+        }
+
+        .modal-body {
+            padding: 30px 20px;
+        }
+
+        .question-label {
+            background: #1e3c72;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 10px;
+            display: inline-block;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            color: #1e3c72;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .answer-option {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #1e3c72;
+        }
+        
+
+        .answer-option:hover {
+            background: #e8f4ff;
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .answer-option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .radio-circle {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .answer-option.selected .radio-circle {
+            border-color: white;
+            background: white;
+        }
+
+        .answer-option.selected .radio-circle::after {
+            content: '✓';
+            color: #667eea;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .answer-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3c72;
+        }
+
+        .modal-btn-answer {
+            background: linear-gradient(135deg, #667eea 0%, #80acff 100%);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-btn-answer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Результат ответа */
+        .result-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .result-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 60px;
+            animation: resultAppear 0.5s ease;
+        }
+
+        @keyframes resultAppear {
+            from {
+                opacity: 0;
+                transform: scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result-icon.correct {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .result-icon.incorrect {
+            background: #3498db;
+            color: white;
+        }
+
+        .result-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .result-title.correct {
+            color: #27ae60;
+        }
+
+        .result-title.incorrect {
+            color: #1e3c72;
+        }
+
+        .result-subtitle {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: #e0e0e0;
+            color: #555;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .node-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .game-board {
+                height: 500px;
+            }
+            
+            .game-node {
+                width: 40px;
+                height: 40px;
+                font-size: 10px;
+            }
+            
+            .path {
+                stroke-width: 25;
+            }
+
+            .question-text {
+                font-size: 18px;
+            }
+
+            .answer-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Кнопка для перехода на карту с вашего сайта -->
+    
+
+    <div class="game-container" id="gameMap">
+       
+        
+        <div class="game-board">
+            <!-- SVG для дорожек -->
+            <svg class="paths-svg" viewBox="0 0 1700 1000" preserveAspectRatio="xMidYMid meet">
+                <!-- Левая дорожка -->
+                <path class="path" d="M 150,140 
+                                       Q 410,190 180,310
+                                       T 260, 450
+                                       T 240, 650
+                                       T 620, 930" />
+
+                <!-- правая дорожка -->
+                <path class="path" d="M 1550,140 
+                                       Q 1290,190 1520,310
+                                       T 1440, 450
+                                       T 1460, 650
+                                       T 1080, 930" />
+                <!-- Центральная левая дорожка -->
+                <path class="path" d="M 470,104 
+                                        Q 620,286 567,357 
+                                        T 638,510 
+                                        T 850,571" />
+                <path class="path" d="M 1230,104 
+                                        Q 1080,286 1133,357 
+                                        T 1062,510 
+                                        T 850,571" />
+                
+                
+                
+                <!-- Центральная соединяющая -->
+                <path class="path" d="M 850,570 
+                                    Q 850,570 850,770 
+                                    T 850,860" />
+                                
+                
+            </svg>
+
+            <!-- Трофеи -->
+            <!-- <div class="trophy" style="left: 68px; top: 40px;">🏆</div> 
+            <div class="trophy" style="left: 350px; top: 30px;">🏆</div>
+            <div class="trophy" style="left: 720px; top: 30px;">🏆</div>
+            <div class="trophy" style="left: 1005px; top: 40px;">🏆</div> -->
+
+            <!-- Кнопки будут добавлены через JavaScript -->
+            <div id="nodesContainer"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно - НОВЫЙ ДИЗАЙН -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <!-- Шапка с информацией о клетке -->
+            <div class="modal-header">
+                <div class="modal-header-title" id="modalCellTitle">Клетка: №1</div>
+                <div class="modal-header-branch" id="modalBranch">Ветка: программист</div>
+            </div>
+
+            <!-- Тело модалки -->
+            <div class="modal-body">
+                <div id="theorySection" style="display: none;">
+                    <div class="question-label">Теория</div>
+                    <div class="theory-card" style="background: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; color: #1e3c72; font-size: 18px; line-height: 1.5; border: 2px solid #667eea;">
+                        <p id="theoryText"></p>
+                    </div>
+                    <button class="modal-btn-answer" onclick="showQuestionAfterTheory()">Далее</button>
+                </div>
+                <!-- Секция вопроса -->
+                <div id="questionSection">
+                    <div class="question-label">Вопрос:</div>
+                    <div class="question-text" id="questionText">Какой тег нужно использовать для создания параграфа текста?</div>
+                    
+                    <div class="answer-options" id="answerOptions">
+                        <!-- Варианты ответов будут добавлены через JavaScript -->
+                    </div>
+
+                    <button class="modal-btn-answer" onclick="checkAnswer()">Ответить</button>
+                </div>
+
+                <!-- Секция результата -->
+                <div class="result-container" id="resultSection">
+                    <div class="result-icon" id="resultIcon">✓</div>
+                    <div class="result-title" id="resultTitle">Верно!</div>
+                    <div class="result-subtitle" id="resultSubtitle">Ход переходит другому участнику</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные о позициях кнопок (в процентах от ширины/высоты)
+        const nodesData = [
+            // Левая дорожка
+            { id: 11, x: 7, y: 15, type: 'gold', title: '🏆', content: 'Золотая клетка!', branch: 'программист', question: 'Вы пишете программу для робота-пылесоса, который должен убрать все клетки комнаты 5×5, начиная с угла. Рекурсивный алгоритм «заполнения» (как заливка в Paint) вызывает себя для соседних клеток. Что произойдёт, если забыть отметить клетку как «уже посещённую» перед вызовом рекурсии для четырёх соседей?', answers: ['Робот уберёт всю комнату идеально', 'Программа упадёт из-за переполнения стека (бесконечная рекурсия) ', 'Робот будет двигаться только вперёд', 'Комната остается грязной'], correct: 1 },
+            { id: 10, x: 15, y: 19, type: 'yellow', title: 'Бонус', content: 'Получите +2 хода', branch: 'программист', theory: 'Динамическое программирование (ДП) — метод решения задач путём разбиения на подзадачи и сохранения их результатов. Классические примеры: числа Фибоначчи, задача о рюкзаке, поиск наибольшей общей подпоследовательности. ДП бывает двух видов: нисходящее (с мемоизацией) и восходящее (табуляция). Временная сложность ДП часто полиномиальна, в отличие от экспоненциального полного перебора. Понимание ДП отличает сильного алгоритмиста.', question: 'Сколько способов подняться на ступеньку n, если можно шагать на 1 или 2 ступени?', answers: ['n', 'n!', '2^n', 'Число Фибоначчи F(n+1)'], correct: 3 },
+            { id: 9, x: 12, y: 31, type: 'blue', title: 'Испытание', content: 'Ответьте на вопрос', branch: 'программист', question: 'Что не является языком программирования?', answers: ['Python', 'HTML', 'JavaScript', 'C#'], correct: 1 },
+            { id: 8, x: 5, y: 41, type: 'blue', title: 'Отдых', content: 'Пропустите ход', branch: 'программист', question: 'Что такое «облачное хранилище»?', answers: ['Флешка', 'Место на удалённых серверах в интернете', 'Внешний жёсткий диск', 'Оперативная память'], correct: 1 },
+            { id: 7, x: 14, y: 45, type: 'yellow', title: 'Награда', content: 'Получите монеты', branch: 'программист', theory: 'Сложность алгоритмов сортировки: пузырьком (O(n²)) прост, но медлителен. Сортировка вставками быстрее на почти отсортированных данных. Сортировка слиянием и быстрая сортировка дают O(n log n) в среднем. Однако быстрая сортировка может деградировать до O(n²) при неудачном выборе опорного элемента. Сортировка подсчётом работает за O(n+k), но требует дополнительной памяти. Выбор сортировки зависит от размера данных и структуры.', question: 'Какая сортировка в худшем случае работает за O(n log n) гарантированно?', answers: ['Пузырьковая', 'Быстрая', 'Сортировка слиянием', 'Сортировка выбором'], correct: 2 },
+            { id: 6, x: 23, y: 54, type: 'blue', title: 'Опасность', content: 'Вернитесь на 2 клетки', branch: 'программист', question: 'Как называется главная плата в компьютере, на которую крепятся все детали?', answers: ['Видеокарта', 'Материнская плата', 'Блок питания', 'Кулер'], correct: 1},
+            { id: 5, x: 15, y: 64, type: 'yellow', title: 'Секрет', content: 'Откройте сундук', branch: 'программист', theory: 'Временная сложность алгоритмов оценивается с помощью «O-большое» (Big O). O(1) — константное время, O(n) — линейное, O(n²) — квадратичное. Сортировка пузырьком работает за O(n²), а быстрая сортировка в среднем — O(n log n). Понимание сложности позволяет предсказать, как программа замедлится при росте данных. Для 1 млн элементов O(n) — это ~1 млн операций, а O(n²) — триллион. Оценка сложности — ключевой навык архитектора ПО.', 
+                    question: 'Какова временная сложность поиска элемента в несортированном массиве (линейный поиск)?', answers: ['O(1)', 'O(log n)', 'O(n)', 'O(n²)', ], correct: 2 },
+            { id: 4, x: 8, y: 74, type: 'blue', title: 'Перекресток', content: 'Выберите путь', branch: 'программист', question:'Как называется ошибка в коде программы?', answers: ['Баг', 'Вирус', 'Пароль', 'Хак'], correct: 0 },
+            { id: 3, x: 16, y: 83, type: 'yellow', title: 'Секрет', branch: 'программист',theory: 'Рекурсия — это когда функция вызывает саму себя. Важно всегда задавать условие выхода, иначе программа упадет с переполнением стека.', question: 'Что произойдёт при вызове функции без условия выхода? (def f():  returnf())',  answers: ['Ошибка компиляции', 'Бесконечная рекурсия и переполнение стека ', 'Программа отработает нормально', 'Рекурсия превратится в цикл'], correct: 1 },
+            { id: 2, x: 27, y: 88, type: 'blue', title: 'База', content: 'Сохраните прогресс', branch: 'программист', question:'Что означает аббревиатура «ПК»?', answers: ['Программный код', 'Персоналный компьютер', 'Процессорный ключ', 'Пакет команд'], correct: 1 },
+            { id: 1, x: 37, y: 91, type: 'blue', title: 'Старт', content: 'Начало пути!', branch: 'программист', question:'Что такое алгоритм?', answers: ['Набор случайных команд', 'Последовательность действий для решения задачи', 'Язык программирования', 'Ошибка в коде'], correct: 1 },
+            
+            
+            // Центральная левая - повар кондитер
+            { 
+                id: 10, x: 27, y: 12, type: 'gold', title: 'Финиш', content: 'Вы дошли до конца!', branch: 'повар-кондитер', 
+                question: 'Что такое крем-шарлотт?', 
+                answers: ['Масляный крем на основе яично-сахарного сиропа', 'Просто взбитые сливки', 'Смесь творога и йогурта'], correct: 0 
+            },
+            { 
+                id: 9, x: 31, y: 19, type: 'blue', title: 'Центр', content: 'Центральная зона', branch: 'повар-кондитер',
+                question: 'Как называется насадка на миксер для взбивания белков?',
+                answers: ['Крюк', 'Лопатка', 'Венчик'], correct: 2
+            },
+            { 
+                id: 8, x: 34, y: 28.6, type: 'yellow', title: 'Удача', content: 'Бросьте кубик', branch: 'повар-кондитер',
+                theory: 'Меренга (безе) бывает трёх видов. Французская — просто взбитые белки с сахаром. Швейцарская — белки нагревают с сахаром на водяной бане. Итальянская — в белки вливают горячий сахарный сироп. Итальянская — самая стабильная.',
+                question: 'Какую меренгу НЕ нужно выпекать в духовке для использования в муссах?', 
+                answers: ['Французскую', 'Швейцарскую', 'Итальянскую'], correct: 2 
+            },
+            { 
+                id: 7, x: 33, y: 40, type: 'blue', title: 'Загадка', content: 'Разгадайте загадку', branch: 'повар-кондитер',
+                question: 'Как называется пирожное из безе и взбитых сливок?',
+                answers: ['Наполеон', 'Павлова', 'Эклер', 'Тирамису'], correct: 1
+            },
+            { 
+                id: 6, x: 37, y: 49.5, type: 'yellow', title: 'Торговец', content: 'Купите предмет', branch: 'повар-кондитер',
+                theory: 'Темперирование шоколада — это процесс нагрева и охлаждения, чтобы он стал блестящим и хрустел. Если просто растопить шоколад, он будет серым и липким. Профессионалы часто используют мраморную плиту.',
+                question: 'Какой признак у НЕПРАВИЛЬНО темперированного шоколада?', 
+                answers: ['Блестящая поверхность', 'Беловатый налёт', 'Твёрдый щелчок при разломе'], correct: 1 
+            },
+            { 
+                id: 5, x: 43, y: 55, type: 'blue', title: 'Мост', content: 'Перейдите на другую сторону', branch: 'повар-кондитер',
+                question: 'Как называется французское печенье-безе из миндальной муки?',
+                answers: ['Макарон', 'Макароны', 'Профитроли'], correct: 0
+            },
+            
+            // Центральная правая - просто повар
+            { 
+                id: 10, x: 73, y: 12, type: 'gold', title: 'Финиш', content: 'Вы дошли до конца!', branch: 'повар', 
+                question: 'При какой температуре выпекается хлеб в среднем?', 
+                answers: ['100-120°C', '180-220°C', '250-300°C'], correct: 1 
+            },
+            { 
+                id: 9, x: 69, y: 19, type: 'blue', title: 'Центр', content: 'Центральная зона', branch: 'повар',
+                question: 'Как называется нож для тонкой нарезки овощей соломкой?',
+                answers: ['Шеф-нож', 'Слайсер', 'Нож для хлеба'], correct: 1
+            },
+            { 
+                id: 8, x: 66, y: 28.6, type: 'yellow', title: 'Удача', content: 'Бросьте кубик', branch: 'повар',
+                theory: 'Степень прожарки стейка варьируется от Rare (с кровью) до Well Done (полная прожарка). Medium — это золотая середина с розовым центром и температурой внутри около 60-65°C.',
+                question: 'Какая температура внутри стейка соответствует прожарке Medium?', 
+                answers: ['40°C', '63°C', '80°C'], correct: 1 
+            },
+            { 
+                id: 7, x: 67, y: 40, type: 'blue', title: 'Загадка', content: 'Разгадайте загадку', branch: 'повар',
+                question: 'Как называется способ приготовления продуктов в вакууме при низкой температуре?',
+                answers: ['Фритюр', 'Су-вид', 'Гриль'], correct: 1
+            },
+            { 
+                id: 6, x: 63, y: 49.5, type: 'yellow', title: 'Торговец', content: 'Купите предмет', branch: 'повар',
+                theory: 'Аль денте (al dente) — в переводе с итальянского значит «на зубок». Это состояние пасты или овощей, когда они уже готовы, но сохраняют легкую упругость при укусе.',
+                question: 'Что означает термин «Аль денте» применительно к пасте?', 
+                answers: ['Разварившаяся каша', 'Слегка недоваренная, упругая', 'Сырая'], correct: 1 
+            },
+            { 
+                id: 5, x: 57, y: 55, type: 'blue', title: 'Мост', content: 'Перейдите на другую сторону', branch: 'повар',
+                question: 'Какая крупа используется для приготовления ризотто?',
+                answers: ['Гречка', 'Рис Арборио', 'Пшено'], correct: 1
+            },
+            
+            // Центральная нижняя - общее
+            { 
+                id: 4, x: 50, y: 58, type: 'gold', title: '🏆', content: 'Золотая клетка!', branch: 'старт',
+                question: 'Какой витамин вырабатывается в коже под воздействием солнца?',
+                answers: ['Витамин А', 'Витамин С', 'Витамин D'], correct: 2
+            },
+            { 
+                id: 3, x: 50, y: 68, type: 'yellow', title: 'Событие', content: 'Глобальное событие', branch: 'старт',
+                theory: 'Здоровое питание базируется на балансе белков, жиров и углеводов. Клетчатка, содержащаяся в овощах, необходима для пищеварения, а вода — главный участник всех обменных процессов в теле.',
+                question: 'Что из этого является основным источником быстрой энергии для мозга?', 
+                answers: ['Жиры', 'Белки', 'Углеводы (глюкоза)'], correct: 2 
+            },
+            { 
+                id: 2, x: 50, y: 78, type: 'blue', title: 'Портал', content: 'Телепортация', branch: 'старт',
+                question: 'Как называется единица измерения энергии, получаемой из пищи?',
+                answers: ['Ватт', 'Джоуль', 'Калория'], correct: 2
+            },
+            { 
+                id: 1, x: 50, y: 89, type: 'blue', title: 'Старт', content: 'Начало пути!', branch: 'старт',
+                question: 'Сколько литров воды взрослому человеку рекомендуется пить в день?',
+                answers: ['0.5 литра', '1.5 - 2 литра', '5 литров'], correct: 1
+            },
+            
+            // Правая дорожка
+            { 
+                id: 11, x: 93, y: 15, type: 'gold', title: '🏆', content: 'Золотая клетка!', branch: 'химик', 
+                question: 'У вас есть 100 мл 9% уксуса. Сколько миллилитров воды нужно добавить, чтобы получить 3% уксус?', 
+                answers: ['100 мл', '200 мл', '300 мл', '50 мл'], correct: 1 
+            }, // [cite: 295, 297]
+            { 
+                id: 10, x: 85, y: 19, type: 'yellow', title: 'Бонус', content: 'Получите +2 хода', branch: 'химик', 
+                theory: 'Химическое равновесие — это состояние, когда прямая и обратная реакции идут с одинаковой скоростью. Принцип Ле Шателье говорит: если на систему подействовать извне, равновесие сместится так, чтобы ослабить это воздействие.',
+                question: 'Чтобы получить больше аммиака (N₂ + 3H₂ → 2NH₃), какое условие нужно создать?', 
+                answers: ['Низкое давление', 'Высокое давление', 'Добавить воду', 'Охладить до 0°C'], correct: 1 
+            }, // [cite: 283, 284, 289, 291]
+            { 
+                id: 9, x: 88, y: 31, type: 'blue', title: 'Испытание', content: 'Ответьте на вопрос', branch: 'химик', 
+                question: 'Какое вещество повара используют для гашения соды?', 
+                answers: ['Соль', 'Уксус', 'Сахар', 'Масло'], correct: 1 
+            }, // [cite: 277, 279]
+            { 
+                id: 8, x: 95, y: 41, type: 'blue', title: 'Отдых', content: 'Пропустите ход', branch: 'химик',
+                question: 'Каким простым веществом можно погасить небольшое возгорание масла на сковороде?',
+                answers: ['Залить водой', 'Накрыть крышкой', 'Посыпать сахаром', 'Добавить уксус'], correct: 1
+            }, // [cite: 271, 273]
+            { 
+                id: 7, x: 86, y: 45, type: 'yellow', title: 'Награда', content: 'Получите монеты', branch: 'химик', 
+                question: 'Какой процесс происходит с яблоком на срезе через несколько минут?', 
+                answers: ['Гниение', 'Окисление железа (потемнение)', 'Брожение', 'Испарение'], correct: 1 
+            }, // [cite: 265, 267]
+            { 
+                id: 6, x: 77, y: 54, type: 'blue', title: 'Опасность', content: 'Вернитесь на 2 клетки', branch: 'химик', 
+                theory: 'Правило Вант-Гоффа: при повышении температуры на каждые 10 градусов скорость реакции увеличивается в 2–4 раза. Поэтому продукты портятся быстрее в тепле, а в холодильнике холод замедляет реакции.',
+                question: 'Какой газ используется для надувания воздушных шаров, чтобы они летали?', 
+                answers: ['Кислород', 'Гелий', 'Углекислый газ', 'Азот'], correct: 1 
+            }, // [cite: 261, 263, 254, 256]
+            { 
+                id: 5, x: 85, y: 64, type: 'yellow', title: 'Секрет', content: 'Откройте сундук', branch: 'химик', 
+                theory: 'Окислитель — это вещество, которое забирает электроны у другого, при этом само восстанавливается. Восстановитель — отдаёт электроны. Окислитель всегда сам восстанавливается.',
+                question: 'В реакции ржавления железа (4Fe + 3O₂ → 2Fe₂O₃), кто является окислителем?', 
+                answers: ['Железо', 'Кислород', 'Ржавчина', 'Вода'], correct: 1 
+            }, // [cite: 244, 246, 248, 250]
+            { 
+                id: 4, x: 92, y: 74, type: 'blue', title: 'Перекресток', content: 'Выберите путь', branch: 'химик', 
+                question: 'Какая кислота содержится в лимоне?', 
+                answers: ['Уксусная', 'Лимонная', 'Серная', 'Соляная'], correct: 1 
+            }, // [cite: 237, 239]
+            { 
+                id: 3, x: 84, y: 83, type: 'yellow', title: 'Секрет', content: 'Откройте сундук', branch: 'химик', 
+                theory: 'Один моль — это число Авогадро (6·10²³ частиц). Молярная масса — это масса одного моля. Например, у воды это 18 г/моль. Значит, 18 граммов воды — это один моль.',
+                question: 'Сколько молей содержится в 36 граммах воды, если один моль воды весит 18 граммов?', 
+                answers: ['1 моль', '2 моля', '3 моля', '0,5 моля'], correct: 1 
+            }, // [cite: 226, 228, 231, 233]
+            { 
+                id: 2, x: 73, y: 88, type: 'blue', title: 'База', content: 'Сохраните прогресс', branch: 'химик', 
+                question: 'Что тяжелее: 1 кг воды или 1 кг железа?', 
+                answers: ['Вода', 'Железо', 'Одинаково', 'Зависит от температуры'], correct: 2 
+            }, // [cite: 220, 223]
+            { 
+                id: 1, x: 63, y: 91, type: 'blue', title: 'Старт', content: 'Начало пути!', branch: 'химик', 
+                question: 'Какой газ мы выдыхаем?', 
+                answers: ['Кислород', 'Углекислый газ', 'Азот', 'Водород'], correct: 1 
+            } // [cite: 214, 216]
+        ];
+
+        let selectedAnswer = null;
+        let currentCorrectAnswer = null;
+        let modalTimeout = null;
+
+        // Создание кнопок
+        function createNodes() {
+            const container = document.getElementById('nodesContainer');
+            
+            nodesData.forEach(node => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = `game-node ${node.type}`;
+                nodeEl.style.left = `${node.x}%`;
+                nodeEl.style.top = `${node.y}%`;
+                nodeEl.style.transform = 'translate(-50%, -50%)';
+                nodeEl.innerHTML = `<span class="node-number">${node.id}</span>`;
+                
+                nodeEl.onclick = () => openModal(node);
+                
+                container.appendChild(nodeEl);
+            });
+        }
+
+        // Модальное окно
+        function openModal(node) {
+            // Сбрасываем состояние
+            selectedAnswer = null;
+            const theorySection = document.getElementById('theorySection');
+            const questionSection = document.getElementById('questionSection');
+            const resultSection = document.getElementById('resultSection');
+            
+            resultSection.style.display = 'none';
+            
+            // Устанавливаем заголовки
+            document.getElementById('modalCellTitle').textContent = `Клетка: №${node.id}`;
+            document.getElementById('modalBranch').textContent = `Ветка: ${node.branch}`;
+            
+            // ПРОВЕРКА ТЕОРИИ: если она есть, показываем её, иначе сразу вопрос
+            if (node.theory) {
+                theorySection.style.display = 'block';
+                questionSection.style.display = 'none';
+                document.getElementById('theoryText').textContent = node.theory;
+            } else {
+                theorySection.style.display = 'none';
+                questionSection.style.display = 'block';
+            }
+            
+            // Настройка вопроса (код остается почти таким же)
+            if (node.question) {
+                document.getElementById('questionText').textContent = node.question;
+                currentCorrectAnswer = node.correct;
+                
+                const optionsContainer = document.getElementById('answerOptions');
+                optionsContainer.innerHTML = '';
+                
+                node.answers.forEach((answer, index) => {
+                    const option = document.createElement('div');
+                    option.className = 'answer-option';
+                    option.onclick = () => selectAnswer(index, option);
+                    option.innerHTML = `
+                        <div class="radio-circle"></div>
+                        <div class="answer-text">${answer}</div>
+                    `;
+                    optionsContainer.appendChild(option);
+                });
+            } else {
+                document.getElementById('questionText').textContent = node.content || "Информации пока нет";
+                document.getElementById('answerOptions').innerHTML = '';
+            }
+            
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+        function showQuestionAfterTheory() {
+            document.getElementById('theorySection').style.display = 'none';
+            document.getElementById('questionSection').style.display = 'block';
+        }
+
+
+        // Выбор ответа
+        function selectAnswer(index, element) {
+            selectedAnswer = index;
+            
+            // Убираем выделение со всех вариантов
+            document.querySelectorAll('.answer-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Добавляем выделение выбранному
+            element.classList.add('selected');
+        }
+
+        // Проверка ответа
+        function checkAnswer() {
+            if (selectedAnswer === null) {
+                alert('Пожалуйста, выберите вариант ответа!');
+                return;
+            }
+            
+            // Скрываем вопрос, показываем результат
+            document.getElementById('questionSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'flex';
+            
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultSubtitle = document.getElementById('resultSubtitle');
+            
+            if (selectedAnswer === currentCorrectAnswer) {
+                // Правильный ответ
+                resultIcon.textContent = '✓';
+                resultIcon.className = 'result-icon correct';
+                resultTitle.textContent = 'Верно!';
+                resultTitle.className = 'result-title correct';
+                resultSubtitle.textContent = '';
+            } else {
+                // Неправильный ответ
+                resultIcon.textContent = '✕';
+                resultIcon.className = 'result-icon incorrect';
+                resultTitle.textContent = 'Не верно';
+                resultTitle.className = 'result-title incorrect';
+                resultSubtitle.textContent = 'Ход переходит другому участнику';
+            }
+            
+            // Автоматическое закрытие через 3 секунды
+            if (modalTimeout) clearTimeout(modalTimeout);
+            modalTimeout = setTimeout(() => {
+                closeModal();
+            }, 3000);
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            if (modalTimeout) clearTimeout(modalTimeout);
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target === event.currentTarget) {
+                closeModal();
+            }
+        }
+
+        function confirmAction() {
+            alert('Действие подтверждено!');
+            closeModal();
+        }
+
+        // Прокрутка к карте
+        function scrollToMap() {
+            document.getElementById('gameMap').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Инициализация
+        window.onload = createNodes;
+
+        // Для интеграции с вашим сайтом
+        function openGameMap() {
+            // Если нужно открывать на отдельной странице
+            window.location.href = 'game-map.html';
+        }
+    </script>
+</body>
+</html>

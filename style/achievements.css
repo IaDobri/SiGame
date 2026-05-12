@@ -1,0 +1,527 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+body {
+  background-color: #B4EFFF;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ========== ОСНОВНОЙ КОНТЕЙНЕР ========== */
+.achievements-wrapper {
+  max-width: 1300px;
+  margin: 20px auto;
+  padding: 0 30px;
+  flex: 1;
+}
+
+/* Табы */
+.profile-tabs {
+  display: flex;
+  gap: 35px;
+  border-bottom: 2px solid #7fc9ff;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.tab-item {
+  color: #0077be;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tab-item:hover {
+  color: #ff9f1c;
+}
+
+.tab-item.active {
+  color: #005a99;
+  font-weight: 700;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #ff9f1c;
+  border-radius: 2px;
+}
+
+/* ========== КАРТОЧКА ДОСТИЖЕНИЙ ========== */
+.achievements-card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 2px 10px rgba(0, 70, 130, 0.08);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Верхняя часть */
+.achievements-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e0f0ff;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #ffb347, #ff8c42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 1px 1px 0 #b45f1b;
+  flex-shrink: 0;
+}
+
+.achievements-info {
+  flex: 1;
+}
+
+.achievements-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0a1e32;
+  margin-bottom: 12px;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: #c0e2ff;
+  border-radius: 4px;
+  overflow: hidden;
+  min-width: 150px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00B2FF, #2882D5);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-weight: 600;
+  color: #00B2FF;
+  background: #D0EDFF;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Основной контент */
+.achievements-content {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 30px;
+  align-items: start;
+}
+
+/* Левая колонка */
+.achievements-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Категории */
+.categories {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.category-btn {
+  background: #D0EDFF;
+  border: none;
+  padding: 8px 22px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #00B2FF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-btn:hover {
+  background: #b8dcff;
+  transform: translateY(-1px);
+}
+
+.category-btn.active {
+  background: #00B2FF;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 178, 255, 0.3);
+}
+
+/* Список достижений - увеличенная высота */
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 480px;
+  min-height: 480px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.achievements-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.achievements-list::-webkit-scrollbar-track {
+  background: #e0f0ff;
+  border-radius: 3px;
+}
+
+.achievements-list::-webkit-scrollbar-thumb {
+  background: #7fc9ff;
+  border-radius: 3px;
+}
+
+.achievement-item {
+  background: #F8FBFE;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s ease;
+  border-left: 4px solid #c0e2ff;
+}
+
+.achievement-item:hover {
+  transform: translateX(3px);
+  background: #f0f8ff;
+}
+
+.achievement-item.locked {
+  opacity: 0.7;
+  border-left-color: #b0c4de;
+}
+
+.achievement-item.unlocked {
+  border-left-color: #00B2FF;
+  background: #e8f4ff;
+}
+
+.achievement-icon {
+  font-size: 1.8rem;
+  width: 45px;
+  text-align: center;
+}
+
+.achievement-info {
+  flex: 1;
+}
+
+.achievement-name {
+  font-weight: 700;
+  color: #0b2b4c;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.achievement-desc {
+  font-size: 0.75rem;
+  color: #6c8db0;
+}
+
+.achievement-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(0, 178, 255, 0.1);
+  color: #00B2FF;
+  white-space: nowrap;
+}
+
+.achievement-item.locked .achievement-status {
+  background: rgba(100, 100, 100, 0.1);
+  color: #8ba0bb;
+}
+
+/* Кнопка Начать игру */
+.start-game-btn {
+  background: linear-gradient(135deg, #ffb347, #ff8c42);
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+  margin-top: auto;
+}
+
+.start-game-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 140, 66, 0.4);
+}
+
+/* Правая колонка */
+.achievements-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 20px;
+}
+
+/* Блок ближайших целей */
+.goals-block {
+  background: #D0EDFF;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.goals-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #00B2FF;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #7fc9ff;
+}
+
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: white;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.goal-item:hover {
+  transform: translateX(3px);
+}
+
+.goal-item.locked {
+  opacity: 0.6;
+  background: #f5f5f5;
+}
+
+.goal-icon {
+  font-size: 1.2rem;
+}
+
+.goal-text {
+  font-size: 0.85rem;
+  color: #1f4a6e;
+  font-weight: 500;
+}
+
+/* Ежедневная цель */
+.daily-goal {
+  background: linear-gradient(135deg, #fff5e6, #ffe6d5);
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px dashed #ffb347;
+}
+
+.daily-goal-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #ff8c42;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-goal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.daily-goal-text {
+  font-size: 0.9rem;
+  color: #0b2b4c;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-goal-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.daily-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #ffe0c4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.daily-progress-fill {
+  height: 100%;
+  background: #ffb347;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.daily-progress-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ff8c42;
+}
+
+/* ========== ФУТЕР ========== */
+.footer {
+  background: linear-gradient(135deg, #1a5b9a 0%, #2e68ea 100%);
+  color: white;
+  margin-top: 40px;
+  border-top: 3px solid #82cafe;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  display: grid;
+  grid-template-columns: 2fr repeat(5, 1fr);
+  gap: 20px;
+}
+
+.footer-section h3, .footer-section h4 {
+  margin-bottom: 12px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.footer-title {
+  font-size: 1.1rem;
+}
+
+.footer-subtitle {
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.footer-description {
+  line-height: 1.5;
+  opacity: 0.9;
+  font-size: 0.75rem;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 6px;
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-size: 0.7rem;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: white;
+}
+
+.contact-info p {
+  font-size: 0.7rem;
+  margin-bottom: 6px;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 0;
+  background: rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.copyright {
+  opacity: 0.7;
+  font-size: 0.7rem;
+}
+
+/* ========== АДАПТИВ ========== */
+@media (max-width: 900px) {
+  .achievements-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .achievements-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .progress-container {
+    justify-content: center;
+  }
+  
+  .categories {
+    justify-content: center;
+  }
+  
+  .achievements-right {
+    position: static;
+  }
+  
+  .achievements-list {
+    max-height: 400px;
+    min-height: 400px;
+  }
+  
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
